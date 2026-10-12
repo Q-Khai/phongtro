@@ -64,7 +64,7 @@
       var btn = document.getElementById('ownerBtn'), box = document.getElementById('keyBox');
       var inp = document.getElementById('keyIn'), err = document.getElementById('keyErr');
       if (key) return;
-      btn.hidden = false;
+      // nút nổi đã thay bằng nút "Tôi là chủ nhà" trong app
       btn.onclick = function () { box.style.display = 'flex'; inp.value = ''; err.textContent = ''; inp.focus(); };
       document.getElementById('keyCancel').onclick = function () { box.style.display = 'none'; };
       document.getElementById('keySave').onclick = function () {
@@ -89,6 +89,13 @@
           try { if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })); } catch (x) { }
           try { if (window.caches) jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })); } catch (x) { }
           Promise.all(jobs).catch(function () { }).then(function () { location.replace(location.pathname + '?r=' + Date.now()); });
+          return;
+        }
+        if (e.data && e.data.phongtro === 'setkey') {
+          var nk = String(e.data.key || '');
+          if (!/^[A-Za-z0-9]{16,128}$/.test(nk)) return;
+          try { localStorage.setItem('ownerKey', nk); } catch (x) { return; }
+          location.replace(location.pathname);
           return;
         }
         if (e.data && e.data.phongtro === 'logout') {
