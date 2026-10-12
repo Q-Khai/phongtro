@@ -76,6 +76,17 @@
     if (/[?#&]k=[A-Za-z0-9]{16,128}/.test(location.search + location.hash)) {
       var ml = document.querySelector('link[rel=manifest]'); if (ml) ml.parentNode.removeChild(ml);
     }
+    // Chủ nhà bấm Đăng xuất trong app: xóa key đã lưu rồi tải lại về màn hình người thuê
+    window.addEventListener('message', function (e) {
+      try {
+        var h = new URL(e.origin).hostname;
+        if (!/(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(h)) return;
+        if (e.data && e.data.phongtro === 'logout') {
+          try { localStorage.removeItem('ownerKey'); } catch (x) { }
+          location.replace(location.pathname);
+        }
+      } catch (x) { }
+    });
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () { });
   </script>
 </body>
