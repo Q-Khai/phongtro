@@ -33,6 +33,19 @@
 <body>
   <!-- THAY đường link dưới đây bằng link Web app của bạn (đuôi /exec) -->
   <iframe id="app" allow="clipboard-write"></iframe>
+  <button id="ownerBtn" hidden style="position:fixed;left:10px;bottom:10px;z-index:5;font:13px sans-serif;padding:6px 10px;border:1px solid #b9d9d1;border-radius:14px;background:#fff;color:#0a8f76;opacity:.7">Chủ nhà</button>
+  <div id="keyBox" hidden style="position:fixed;inset:0;z-index:10;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;padding:20px">
+    <div style="background:#fff;border-radius:16px;padding:20px;max-width:420px;width:100%;font-family:sans-serif">
+      <div style="font-size:18px;font-weight:700;color:#0b2f28;margin-bottom:6px">Mã chủ nhà</div>
+      <div style="font-size:15px;color:#33524b;margin-bottom:12px">Dán mã chủ nhà vào đây. Chỉ cần làm một lần trên điện thoại này.</div>
+      <input id="keyIn" type="text" autocapitalize="off" autocorrect="off" spellcheck="false" style="width:100%;box-sizing:border-box;font-size:16px;padding:12px;border:2px solid #cfe3de;border-radius:10px">
+      <div id="keyErr" style="color:#c0392b;font-size:14px;min-height:20px;margin-top:6px"></div>
+      <div style="display:flex;gap:10px;margin-top:6px">
+        <button id="keyCancel" style="flex:1;font-size:16px;padding:12px;border-radius:10px;border:1px solid #cfe3de;background:#fff;color:#0b2f28">Hủy</button>
+        <button id="keySave" style="flex:1;font-size:16px;font-weight:700;padding:12px;border-radius:10px;border:0;background:#0a8f76;color:#fff">Lưu</button>
+      </div>
+    </div>
+  </div>
   <script>
     // Link /exec của Web app (không chứa key)
     var EXEC = 'https://script.google.com/macros/s/AKfycbwooTR1qnOXGkVHAeI5Ke_Gro8X1YQH8G0wqiRWnJj5XaKMgQS8LukDlLo0GH6q2gQ/exec';
@@ -44,6 +57,21 @@
       else { try { key = localStorage.getItem('ownerKey') || ''; } catch (e) { } }
     } catch (e) { }
     document.getElementById('app').src = EXEC + (key ? '?k=' + key : '');
+    // Chưa có key: hiện nút nhỏ "Chủ nhà" để dán key một lần (lưu trong app, không phụ thuộc URL)
+    (function () {
+      var btn = document.getElementById('ownerBtn'), box = document.getElementById('keyBox');
+      var inp = document.getElementById('keyIn'), err = document.getElementById('keyErr');
+      if (key) return;
+      btn.hidden = false;
+      btn.onclick = function () { box.style.display = 'flex'; inp.value = ''; err.textContent = ''; inp.focus(); };
+      document.getElementById('keyCancel').onclick = function () { box.style.display = 'none'; };
+      document.getElementById('keySave').onclick = function () {
+        var k = (inp.value || '').trim();
+        if (!/^[A-Za-z0-9]{16,128}$/.test(k)) { err.textContent = 'Mã chưa đúng. Hãy dán lại toàn bộ mã.'; return; }
+        try { localStorage.setItem('ownerKey', k); } catch (e) { err.textContent = 'Không lưu được trên máy này.'; return; }
+        location.replace(location.pathname);
+      };
+    })();
     // Có key trên URL: bỏ manifest để iOS giữ nguyên URL (kèm #k=) khi Thêm vào MH chính, logo lấy từ apple-touch-icon
     if (/[?#&]k=[A-Za-z0-9]{16,128}/.test(location.search + location.hash)) {
       var ml = document.querySelector('link[rel=manifest]'); if (ml) ml.parentNode.removeChild(ml);
