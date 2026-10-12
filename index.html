@@ -61,8 +61,8 @@
     (function () {
       var btn = document.getElementById('ownerBtn'), box = document.getElementById('keyBox');
       var inp = document.getElementById('keyIn'), err = document.getElementById('keyErr');
-      if (key) return;
       btn.hidden = false;
+      if (key) btn.textContent = 'Đổi mã chủ nhà';
       btn.onclick = function () { box.style.display = 'flex'; inp.value = ''; err.textContent = ''; inp.focus(); };
       document.getElementById('keyCancel').onclick = function () { box.style.display = 'none'; };
       document.getElementById('keySave').onclick = function () {
