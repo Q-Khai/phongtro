@@ -32,10 +32,18 @@
 
 <body>
   <!-- THAY đường link dưới đây bằng link Web app của bạn (đuôi /exec) -->
-  <iframe id="app"
-    src="https://script.google.com/macros/s/AKfycbwooTR1qnOXGkVHAeI5Ke_Gro8X1YQH8G0wqiRWnJj5XaKMgQS8LukDlLo0GH6q2gQ/exec"
-    allow="clipboard-write"></iframe>
+  <iframe id="app" allow="clipboard-write"></iframe>
   <script>
+    // Link /exec của Web app (không chứa key)
+    var EXEC = 'https://script.google.com/macros/s/AKfycbwooTR1qnOXGkVHAeI5Ke_Gro8X1YQH8G0wqiRWnJj5XaKMgQS8LukDlLo0GH6q2gQ/exec';
+    // Chủ nhà mở: .../phongtro/#k=<key> (phần sau dấu # không gửi lên server)
+    var key = '';
+    try {
+      var mm = /[#&]k=([A-Za-z0-9]{16,128})/.exec(location.hash);
+      if (mm) { key = mm[1]; try { localStorage.setItem('ownerKey', key); } catch (e) { } }
+      else { try { key = localStorage.getItem('ownerKey') || ''; } catch (e) { } }
+    } catch (e) { }
+    document.getElementById('app').src = EXEC + (key ? '?k=' + key : '');
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () { });
   </script>
 </body>
