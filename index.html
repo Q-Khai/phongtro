@@ -56,7 +56,9 @@
       if (mm) { key = mm[1]; try { localStorage.setItem('ownerKey', key); } catch (e) { } }
       else { try { key = localStorage.getItem('ownerKey') || ''; } catch (e) { } }
     } catch (e) { }
-    document.getElementById('app').src = EXEC + (key ? '?k=' + key : '');
+    var rm = /[?&]r=(\d+)/.exec(location.search);
+    var qs = (key ? 'k=' + key : '') + (rm ? (key ? '&' : '') + 'r=' + rm[1] : '');
+    document.getElementById('app').src = EXEC + (qs ? '?' + qs : '');
     // Chưa có key: hiện nút nhỏ "Chủ nhà" để dán key một lần (lưu trong app, không phụ thuộc URL)
     (function () {
       var btn = document.getElementById('ownerBtn'), box = document.getElementById('keyBox');
@@ -81,6 +83,14 @@
       try {
         var h = new URL(e.origin).hostname;
         if (!/(^|\.)googleusercontent\.com$|(^|\.)google\.com$/.test(h)) return;
+        if (e.data && e.data.phongtro === 'reload') {
+          // Tải lại ứng dụng: xóa cache của trang rồi mở lại với tham số mới để lấy bản mới nhất
+          var jobs = [];
+          try { if (navigator.serviceWorker) jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })); } catch (x) { }
+          try { if (window.caches) jobs.push(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })); } catch (x) { }
+          Promise.all(jobs).catch(function () { }).then(function () { location.replace(location.pathname + '?r=' + Date.now()); });
+          return;
+        }
         if (e.data && e.data.phongtro === 'logout') {
           try { localStorage.removeItem('ownerKey'); } catch (x) { }
           location.replace(location.pathname);
