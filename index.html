@@ -39,13 +39,13 @@
     // Chủ nhà mở: .../phongtro/#k=<key> (phần sau dấu # không gửi lên server)
     var key = '';
     try {
-      var mm = /[#&]k=([A-Za-z0-9]{16,128})/.exec(location.hash);
+      var mm = /[?#&]k=([A-Za-z0-9]{16,128})/.exec(location.search + location.hash);
       if (mm) { key = mm[1]; try { localStorage.setItem('ownerKey', key); } catch (e) { } }
       else { try { key = localStorage.getItem('ownerKey') || ''; } catch (e) { } }
     } catch (e) { }
     document.getElementById('app').src = EXEC + (key ? '?k=' + key : '');
     // Có key trên URL: bỏ manifest để iOS giữ nguyên URL (kèm #k=) khi Thêm vào MH chính, logo lấy từ apple-touch-icon
-    if (/[#&]k=[A-Za-z0-9]{16,128}/.test(location.hash)) {
+    if (/[?#&]k=[A-Za-z0-9]{16,128}/.test(location.search + location.hash)) {
       var ml = document.querySelector('link[rel=manifest]'); if (ml) ml.parentNode.removeChild(ml);
     }
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () { });
